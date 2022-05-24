@@ -1,0 +1,1 @@
+# bash-password-validator
