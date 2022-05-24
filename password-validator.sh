@@ -10,8 +10,13 @@ NOBOLD=$(tput sgr0)
 #an array for error messeges
 ErrorMesseges=()
 
-#setting first argument as password
-password=$1
+#gets password either from a file or as a parameter to the script
+#(default is parameter, if flag -f, read password from the file in filepath that comes after that)
+if [[ $1 -eq "-f" ]]; then
+    password=$(<$2)
+else
+    password=$1
+fi
 
 #checking and adding an error if the password's lenght is smaller than 10
 if [[ ${#Password} -lt 10 ]]; then
