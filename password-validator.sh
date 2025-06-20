@@ -1,44 +1,48 @@
 #!/bin/bash
 
-#constanst for styling output
+# Constants for styling output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NOCOLOR='\033[0m'
-BOLD=$(tput bold)
-NOBOLD=$(tput sgr0)
+BOLD=$(tput bold 2>/dev/null || echo "")
+NOBOLD=$(tput sgr0 2>/dev/null || echo "")
 
-#an array for error messeges
-ErrorMesseges=()
+# An array for error messages
+ErrorMessages=()
 
-#setting first argument as password
-password=$1
+# Setting first argument as password
+password="$1"
 
-#checking and adding an error if the password's lenght is smaller than 10
-if [[ ${#Password} -lt 10 ]]; then
-    ErrorMesseges+=("Password must have a minimum of 10 characters")
+# Check for empty input
+if [[ -z "$password" ]]; then
+    echo -e "${RED}Error: No password provided.${NOCOLOR}"
+    echo "Usage: $0 \"YourPasswordHere\""
+    exit 2
 fi
 
-#checking and adding an error if the password does'nt have numbers or letters
-if [[ ! $Password =~ [0-9] ]] || [[ ! $Password =~ ([a-zA-Z]+) ]]; then
-    ErrorMesseges+=("Password must contain both alphabet and number")
+# Check if the password's length is less than 10
+if [[ ${#password} -lt 10 ]]; then
+    ErrorMessages+=("Password must have a minimum of 10 characters.")
 fi
 
-#checking and adding an error if the password does'nt have either small letters or big letters
-if [[ ! $Password =~ ([a-z]+) ]] || [[ ! $Password =~ ([A-Z]+) ]]; then
-    ErrorMesseges+=("Password must include both the small and capital case letters.")
+# Check if password contains both letters and numbers
+if [[ ! "$password" =~ [0-9] ]] || [[ ! "$password" =~ [a-zA-Z] ]]; then
+    ErrorMessages+=("Password must contain both letters and numbers.")
 fi
 
-#if there are no error messeges, tell the user his password is strong in green text
-#and exit with code 0
-if [[ ${#ErrorMesseges[@]} -eq 0 ]]; then
-    echo -e "${GREEN}Your password is strong. keep it up.${NOCOLOR}"
+# Check if password contains both lowercase and uppercase
+if [[ ! "$password" =~ [a-z] ]] || [[ ! "$password" =~ [A-Z] ]]; then
+    ErrorMessages+=("Password must include both lowercase and uppercase letters.")
+fi
+
+# Final output
+if [[ ${#ErrorMessages[@]} -eq 0 ]]; then
+    echo -e "${GREEN}Your password is strong. Keep it up!${NOCOLOR}"
     exit 0
+else
+    echo -e "${RED}Password is ${BOLD}not valid${NOBOLD}${RED}. Reasons:${NOCOLOR}"
+    for msg in "${ErrorMessages[@]}"; do
+        echo -e "  - $msg"
+    done
+    exit 1
 fi
-
-#at this point there are errors in the array
-#here we print the errors with some text styling
-#and exit with code 1
-echo -e -n "${RED}Password is ${BOLD}not valid${NOBOLD}${RED}. This is why:"
-printf '\n◊%s' "${ErrorMesseges[@]}" #printing each error in new line
-echo -e "${NOCOLOR}"
-exit 1
